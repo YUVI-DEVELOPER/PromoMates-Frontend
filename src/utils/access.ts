@@ -1,0 +1,170 @@
+import { PERMISSIONS } from "./permissions";
+
+
+export type PermissionChecker = (permissionKey: string) => boolean;
+
+
+export const REQUEST_ACCESS_PERMISSIONS = [
+  PERMISSIONS.CREATE_CONTENT_REQUEST,
+  PERMISSIONS.SUBMIT_CONTENT_REQUEST,
+  PERMISSIONS.REGIONAL_EVALUATE_REQUEST,
+  PERMISSIONS.VIEW_REGION_REQUESTS,
+  PERMISSIONS.AUTHOR_CONTENT,
+  PERMISSIONS.CREATE_CONTENT_DRAFT,
+  PERMISSIONS.VIEW_THERAPY_PIPELINE,
+  PERMISSIONS.REVIEW_MEDICAL_CONTENT,
+  PERMISSIONS.CREATE_REQUEST,
+  PERMISSIONS.UPDATE_REQUEST,
+] as const;
+
+export const REQUEST_DETAIL_ACCESS_PERMISSIONS = [
+  PERMISSIONS.CREATE_REQUEST,
+  PERMISSIONS.UPDATE_REQUEST,
+  PERMISSIONS.CREATE_CONTENT_REQUEST,
+  PERMISSIONS.SUBMIT_CONTENT_REQUEST,
+  PERMISSIONS.REGIONAL_EVALUATE_REQUEST,
+  PERMISSIONS.REQUEST_MODIFICATION,
+  PERMISSIONS.REJECT_REQUEST,
+  PERMISSIONS.DEFER_REQUEST,
+  PERMISSIONS.MERGE_REQUEST,
+  PERMISSIONS.ASSIGN_THERAPY_LEAD,
+  PERMISSIONS.VIEW_REGION_REQUESTS,
+  PERMISSIONS.AUTHOR_CONTENT,
+  PERMISSIONS.CREATE_CONTENT_DRAFT,
+  PERMISSIONS.VIEW_THERAPY_PIPELINE,
+  PERMISSIONS.REVIEW_MEDICAL_CONTENT,
+  PERMISSIONS.REVIEW_MLR,
+  PERMISSIONS.ADD_REVIEW_ANNOTATION,
+  PERMISSIONS.RESOLVE_REVIEW_ANNOTATION,
+  PERMISSIONS.UPDATE_COMPLIANCE_CHECKLIST,
+  PERMISSIONS.ISSUE_MLR_CODE,
+  PERMISSIONS.SEND_TO_DESIGN,
+  PERMISSIONS.CREATE_DESIGN_BRIEF,
+  PERMISSIONS.SUBMIT_DESIGN_BRIEF,
+  PERMISSIONS.VIEW_DESIGN_BRIEF,
+  PERMISSIONS.MANAGE_DESIGN,
+  PERMISSIONS.UPLOAD_DESIGN_DRAFT,
+  PERMISSIONS.FINAL_APPROVE,
+  PERMISSIONS.MANAGE_APPROVED_MATERIALS,
+  PERMISSIONS.CREATE_DISTRIBUTION,
+  PERMISSIONS.RELEASE_DISTRIBUTION,
+  PERMISSIONS.WITHDRAW_DISTRIBUTION,
+] as const;
+
+export const DOCUMENT_LIBRARY_ACCESS_PERMISSIONS = [
+  PERMISSIONS.REVIEW_MLR,
+  PERMISSIONS.CREATE_REQUEST,
+  PERMISSIONS.UPDATE_REQUEST,
+] as const;
+
+export const REVIEW_TASK_ACCESS_PERMISSIONS = [PERMISSIONS.REVIEW_MLR, PERMISSIONS.REVIEW_MEDICAL_CONTENT] as const;
+
+export const DESIGN_ACCESS_PERMISSIONS = [
+  PERMISSIONS.CREATE_DESIGN_BRIEF,
+  PERMISSIONS.SUBMIT_DESIGN_BRIEF,
+  PERMISSIONS.VIEW_DESIGN_BRIEF,
+  PERMISSIONS.MANAGE_DESIGN,
+  PERMISSIONS.UPLOAD_DESIGN_DRAFT,
+  PERMISSIONS.REVIEW_DESIGN_DRAFT,
+  PERMISSIONS.APPROVE_DESIGN_DRAFT,
+  PERMISSIONS.REQUEST_DESIGN_REVISION,
+] as const;
+
+export const APPROVED_MATERIALS_ACCESS_PERMISSIONS = [
+  PERMISSIONS.FINAL_APPROVE,
+  PERMISSIONS.MANAGE_APPROVED_MATERIALS,
+] as const;
+
+export const DISTRIBUTION_ACCESS_PERMISSIONS = [
+  PERMISSIONS.CREATE_DISTRIBUTION,
+  PERMISSIONS.RELEASE_DISTRIBUTION,
+  PERMISSIONS.WITHDRAW_DISTRIBUTION,
+] as const;
+
+export const SALES_MATERIALS_ACCESS_PERMISSIONS = [
+  PERMISSIONS.ACCESS_SALES_MATERIALS,
+] as const;
+
+export const ADMIN_ACCESS_PERMISSIONS = [
+  PERMISSIONS.MANAGE_SYSTEM,
+  PERMISSIONS.MANAGE_USERS,
+  PERMISSIONS.MANAGE_MASTER_DATA,
+] as const;
+
+export const ROLE_MANAGEMENT_ACCESS_PERMISSIONS = [
+  PERMISSIONS.MANAGE_SYSTEM,
+  PERMISSIONS.MANAGE_USERS,
+] as const;
+
+export const MASTER_DATA_ACCESS_PERMISSIONS = [
+  PERMISSIONS.MANAGE_SYSTEM,
+  PERMISSIONS.MANAGE_MASTER_DATA,
+] as const;
+
+export const ROUTING_SETUP_ACCESS_PERMISSIONS = [
+  PERMISSIONS.MANAGE_SYSTEM,
+  PERMISSIONS.MANAGE_WORKFLOW,
+] as const;
+
+
+function hasAnyPermission(
+  hasPermission: PermissionChecker,
+  permissionKeys: readonly string[],
+): boolean {
+  return permissionKeys.some((permissionKey) => hasPermission(permissionKey));
+}
+
+
+export function canAccessRequests(hasPermission: PermissionChecker): boolean {
+  return hasAnyPermission(hasPermission, REQUEST_ACCESS_PERMISSIONS);
+}
+
+
+export function canCreateRequests(hasPermission: PermissionChecker): boolean {
+  return hasPermission(PERMISSIONS.CREATE_CONTENT_REQUEST) || hasPermission(PERMISSIONS.CREATE_REQUEST);
+}
+
+
+export function canAccessDocumentLibrary(hasPermission: PermissionChecker): boolean {
+  return hasAnyPermission(hasPermission, DOCUMENT_LIBRARY_ACCESS_PERMISSIONS);
+}
+
+
+export function canManageDocumentWorkspace(hasPermission: PermissionChecker): boolean {
+  return hasAnyPermission(hasPermission, REQUEST_ACCESS_PERMISSIONS);
+}
+
+
+export function canAccessReviewTasks(hasPermission: PermissionChecker): boolean {
+  return hasAnyPermission(hasPermission, REVIEW_TASK_ACCESS_PERMISSIONS);
+}
+
+
+export function canAccessApprovedMaterials(hasPermission: PermissionChecker): boolean {
+  return hasAnyPermission(hasPermission, APPROVED_MATERIALS_ACCESS_PERMISSIONS);
+}
+
+
+export function canAccessDistribution(hasPermission: PermissionChecker): boolean {
+  return hasAnyPermission(hasPermission, DISTRIBUTION_ACCESS_PERMISSIONS);
+}
+
+
+export function canAccessSalesMaterials(hasPermission: PermissionChecker): boolean {
+  return hasAnyPermission(hasPermission, SALES_MATERIALS_ACCESS_PERMISSIONS);
+}
+
+
+export function canAccessAdmin(hasPermission: PermissionChecker): boolean {
+  return hasAnyPermission(hasPermission, ADMIN_ACCESS_PERMISSIONS);
+}
+
+
+export function canAccessRoleManagement(hasPermission: PermissionChecker): boolean {
+  return hasAnyPermission(hasPermission, ROLE_MANAGEMENT_ACCESS_PERMISSIONS);
+}
+
+
+export function canAccessMasterDataManagement(hasPermission: PermissionChecker): boolean {
+  return hasAnyPermission(hasPermission, MASTER_DATA_ACCESS_PERMISSIONS);
+}
