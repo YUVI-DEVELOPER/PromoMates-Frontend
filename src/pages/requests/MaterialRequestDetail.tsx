@@ -3916,13 +3916,13 @@ function DraftVersionModal({
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Draft File</span>
             <input
               type="file"
-              accept=".pdf,.docx,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation"
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.mp4,.webm,.mov,.ogv,.mp3,.m4a,.aac,.ogg,.wav,application/pdf,application/msword,application/vnd.ms-powerpoint,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,video/mp4,video/webm,video/quicktime,video/ogg,audio/mpeg,audio/mp4,audio/aac,audio/ogg,audio/wav,audio/webm,audio/x-m4a,audio/x-wav"
               onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
               disabled={isSubmitting}
               className="mt-2 block w-full text-sm text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-brand-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-brand-700"
             />
             <p className="mt-1 text-xs text-slate-500">
-              DOCX, PPTX, or PDF up to 50 MB. {file ? `Selected: ${file.name}` : ""}
+              PDF, Office, video, or audio up to 50 MB. {file ? `Selected: ${file.name}` : ""}
             </p>
           </label>
         </div>

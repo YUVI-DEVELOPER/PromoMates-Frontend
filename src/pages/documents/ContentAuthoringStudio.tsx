@@ -43,11 +43,44 @@ const activeToolbarButtonClass =
 
 const draftVersionAllowedMimeTypes = new Set([
   "application/pdf",
+  "application/msword",
+  "application/vnd.ms-excel",
+  "application/vnd.ms-powerpoint",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "audio/aac",
+  "audio/mpeg",
+  "audio/mp4",
+  "audio/ogg",
+  "audio/wav",
+  "audio/webm",
+  "audio/x-m4a",
+  "audio/x-wav",
+  "video/mp4",
+  "video/ogg",
+  "video/quicktime",
+  "video/webm",
 ]);
 
-const draftVersionAllowedExtensions = [".pdf", ".docx", ".pptx"];
+const draftVersionAllowedExtensions = [
+  ".pdf",
+  ".doc",
+  ".docx",
+  ".ppt",
+  ".pptx",
+  ".xls",
+  ".xlsx",
+  ".mp4",
+  ".webm",
+  ".mov",
+  ".ogv",
+  ".mp3",
+  ".m4a",
+  ".aac",
+  ".ogg",
+  ".wav",
+];
 const imageAllowedMimeTypes = new Set(["image/jpeg", "image/png"]);
 const paintPalette = ["#0f172a", "#dc2626", "#2563eb", "#047857", "#f59e0b", "#ffffff"];
 const fillPalette = ["#ffffff", "#fee2e2", "#dbeafe", "#dcfce7", "#fef3c7", "#e0f2fe"];
@@ -627,9 +660,10 @@ function readFileAsDataUrl(file: File): Promise<string> {
 
 
 function validateDraftVersionFile(file: File): string | null {
-  const extension = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+  const extensionIndex = file.name.lastIndexOf(".");
+  const extension = extensionIndex >= 0 ? file.name.slice(extensionIndex).toLowerCase() : "";
   if (!draftVersionAllowedMimeTypes.has(file.type) && !draftVersionAllowedExtensions.includes(extension)) {
-    return "Unsupported file type. Upload a DOCX, PPTX, or PDF file.";
+    return "Unsupported file type. Upload a PDF, Office, video, or audio file.";
   }
   if (file.size <= 0) {
     return "Uploaded file must not be empty.";
@@ -1872,7 +1906,7 @@ function CreateVersionModal({
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Optional Draft File</span>
             <input
               type="file"
-              accept=".pdf,.docx,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation"
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.mp4,.webm,.mov,.ogv,.mp3,.m4a,.aac,.ogg,.wav,application/pdf,application/msword,application/vnd.ms-powerpoint,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,video/mp4,video/webm,video/quicktime,video/ogg,audio/mpeg,audio/mp4,audio/aac,audio/ogg,audio/wav,audio/webm,audio/x-m4a,audio/x-wav"
               onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
               disabled={isSubmitting}
               className="mt-2 block w-full text-sm text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-brand-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-brand-700"

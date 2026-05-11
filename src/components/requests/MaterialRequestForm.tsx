@@ -264,11 +264,48 @@ function buildPayloadFromValues(values: RequestFormValues): MaterialRequestCreat
 
 const allowedReferenceMimeTypes = new Set([
   "application/pdf",
+  "application/msword",
+  "application/vnd.ms-excel",
+  "application/vnd.ms-powerpoint",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "audio/aac",
+  "audio/mpeg",
+  "audio/mp4",
+  "audio/ogg",
+  "audio/wav",
+  "audio/webm",
+  "audio/x-m4a",
+  "audio/x-wav",
   "image/jpeg",
   "image/png",
   "video/mp4",
+  "video/ogg",
+  "video/quicktime",
+  "video/webm",
+]);
+
+const allowedReferenceExtensions = new Set([
+  ".pdf",
+  ".doc",
+  ".docx",
+  ".ppt",
+  ".pptx",
+  ".xls",
+  ".xlsx",
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".mp4",
+  ".webm",
+  ".mov",
+  ".ogv",
+  ".mp3",
+  ".m4a",
+  ".aac",
+  ".ogg",
+  ".wav",
 ]);
 
 const maxReferenceFiles = 10;
@@ -663,9 +700,13 @@ export function MaterialRequestForm({
       return "Reference Materials are limited to 10 files.";
     }
 
-    const invalidType = files.find((file) => !allowedReferenceMimeTypes.has(file.type));
+    const invalidType = files.find((file) => {
+      const extensionIndex = file.name.lastIndexOf(".");
+      const extension = extensionIndex >= 0 ? file.name.slice(extensionIndex).toLowerCase() : "";
+      return !allowedReferenceMimeTypes.has(file.type) && !allowedReferenceExtensions.has(extension);
+    });
     if (invalidType) {
-      return `${invalidType.name} is not supported. Upload PDF, DOCX, PPTX, JPG, PNG, or MP4.`;
+      return `${invalidType.name} is not supported. Upload PDF, Office, image, video, or audio files.`;
     }
 
     const oversizedFile = files.find((file) => file.size > maxReferenceFileSizeBytes);
@@ -1292,13 +1333,13 @@ function ReferenceMaterialsField({
         Reference Materials
       </label>
       <p className="mt-1 text-xs text-slate-500">
-        Maximum 10 files, 50MB each. PDF, DOCX, PPTX, JPG, PNG, MP4.
+        Maximum 10 files, 50MB each. PDF, Office, image, video, and audio files.
       </p>
       <input
         id="request-reference-materials"
         type="file"
         multiple
-        accept=".pdf,.docx,.pptx,.jpg,.jpeg,.png,.mp4,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,image/jpeg,image/png,video/mp4"
+        accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.mp4,.webm,.mov,.ogv,.mp3,.m4a,.aac,.ogg,.wav,application/pdf,application/msword,application/vnd.ms-powerpoint,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/jpeg,image/png,video/mp4,video/webm,video/quicktime,video/ogg,audio/mpeg,audio/mp4,audio/aac,audio/ogg,audio/wav,audio/webm,audio/x-m4a,audio/x-wav"
         onChange={(event) => {
           onSelectFiles(event.currentTarget.files);
           event.currentTarget.value = "";

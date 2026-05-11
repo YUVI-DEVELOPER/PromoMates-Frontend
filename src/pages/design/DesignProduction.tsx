@@ -166,7 +166,7 @@ function annotationAnchorLabel(annotation: ReviewAnnotation): string {
     return annotation.page_number ? `Page ${annotation.page_number} text` : "Text selection";
   }
   if (annotation.anchor_type === "VIDEO_TIMESTAMP") {
-    return "Video timestamp";
+    return "Media timestamp";
   }
   return "General";
 }
@@ -1083,7 +1083,7 @@ export function DesignProduction() {
                 <input
                   className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
                   type="file"
-                  accept=".pdf,.pptx,.png,.jpg,.jpeg,.docx,.zip"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.mp4,.webm,.mov,.ogv,.mp3,.m4a,.aac,.ogg,.wav,.zip"
                   onChange={(event) => setRevisionFile(event.target.files?.[0] ?? null)}
                   disabled={isActionLoading}
                   required
@@ -1190,7 +1190,7 @@ export function DesignProduction() {
                 <input
                   className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
                   type="file"
-                  accept=".pdf,.pptx,.png,.jpg,.jpeg,.docx,.zip"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.mp4,.webm,.mov,.ogv,.mp3,.m4a,.aac,.ogg,.wav,.zip"
                   onChange={(event) => setFile(event.target.files?.[0] ?? null)}
                   disabled={isActionLoading}
                   required

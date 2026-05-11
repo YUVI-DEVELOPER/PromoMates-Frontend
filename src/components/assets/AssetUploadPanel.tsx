@@ -15,7 +15,28 @@ type AssetUploadPanelProps = {
 
 
 const maxUploadSizeBytes = 25 * 1024 * 1024;
-const allowedExtensions = [".pdf", ".docx", ".pptx", ".xlsx", ".png", ".jpg", ".jpeg", ".txt"];
+const allowedExtensions = [
+  ".pdf",
+  ".doc",
+  ".docx",
+  ".ppt",
+  ".pptx",
+  ".xls",
+  ".xlsx",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".mp4",
+  ".webm",
+  ".mov",
+  ".ogv",
+  ".mp3",
+  ".m4a",
+  ".aac",
+  ".ogg",
+  ".wav",
+  ".txt",
+];
 const editableStatuses: DocumentStatus[] = ["DRAFT", "CHANGES_REQUESTED"];
 
 
@@ -31,7 +52,7 @@ function validateFile(file: File | null): string | null {
   }
 
   if (!allowedExtensions.includes(getFileExtension(file.name))) {
-    return "Unsupported file type. Upload PDF, DOCX, PPTX, XLSX, PNG, JPG, JPEG, or TXT.";
+    return "Unsupported file type. Upload PDF, Office, image, video, audio, or TXT files.";
   }
 
   if (file.size > maxUploadSizeBytes) {
@@ -144,7 +165,7 @@ export function AssetUploadPanel({
         <h3 className="text-sm font-semibold text-slate-950">Upload Review File</h3>
         <p className="mt-2 text-sm leading-6 text-slate-600">
           Upload is available only while the review content is Draft or Changes Requested.{" "}
-          Supported files: PDF, DOCX, PPTX, XLSX, PNG, JPG, JPEG, TXT. Maximum size:
+          Supported files: PDF, Office, image, video, audio, and TXT. Maximum size:
           25 MB.
         </p>
       </div>

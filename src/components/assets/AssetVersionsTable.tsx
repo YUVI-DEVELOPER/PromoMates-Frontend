@@ -27,12 +27,27 @@ function shortChecksum(value: string): string {
 function readableFileType(mimeType: string): string {
   const types: Record<string, string> = {
     "application/pdf": "PDF",
+    "application/msword": "DOC",
+    "application/vnd.ms-excel": "XLS",
+    "application/vnd.ms-powerpoint": "PPT",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "DOCX",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation": "PPTX",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "XLSX",
+    "audio/aac": "AAC",
+    "audio/mpeg": "MP3",
+    "audio/mp4": "M4A",
+    "audio/ogg": "OGG",
+    "audio/wav": "WAV",
+    "audio/webm": "WEBM Audio",
+    "audio/x-m4a": "M4A",
+    "audio/x-wav": "WAV",
     "image/png": "PNG",
     "image/jpeg": "JPEG",
     "text/plain": "TXT",
+    "video/mp4": "MP4",
+    "video/ogg": "OGV",
+    "video/quicktime": "MOV",
+    "video/webm": "WEBM Video",
   };
 
   return types[mimeType] ?? mimeType;

@@ -22,6 +22,8 @@ import { getApiErrorMessage } from "../../utils/apiError";
 import { PdfViewer } from "./PdfViewer";
 import { ImageViewer } from "./ImageViewer";
 import { VideoViewer } from "./VideoViewer";
+import { AudioViewer } from "./AudioViewer";
+import { HtmlViewer } from "./HtmlViewer";
 import { PreviewFallback } from "./PreviewFallback";
 import type { PendingAnnotationAnchor, ViewerMode } from "./types";
 
@@ -90,6 +92,86 @@ function isPreviewRenderable(preview: AssetPreview | null): boolean {
 
 function isDocumentPreview(preview: AssetPreview | null): boolean {
   return preview?.preview_type === "PDF" || preview?.preview_type === "IMAGE";
+}
+
+
+function fileExtension(filename: string): string {
+  const index = filename.lastIndexOf(".");
+  return index >= 0 ? filename.slice(index).toLowerCase() : "";
+}
+
+
+function isKnownPreviewableAsset(asset: ViewerAsset): boolean {
+  const extension = fileExtension(asset.original_filename);
+  return (
+    [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.ms-excel",
+      "application/vnd.ms-powerpoint",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "audio/aac",
+      "audio/mpeg",
+      "audio/mp4",
+      "audio/ogg",
+      "audio/wav",
+      "audio/webm",
+      "audio/x-m4a",
+      "audio/x-wav",
+      "image/jpeg",
+      "image/png",
+      "video/mp4",
+      "video/ogg",
+      "video/quicktime",
+      "video/webm",
+    ].includes(asset.mime_type) ||
+    [
+      ".aac",
+      ".doc",
+      ".docx",
+      ".jpg",
+      ".jpeg",
+      ".m4a",
+      ".mov",
+      ".mp3",
+      ".mp4",
+      ".oga",
+      ".ogg",
+      ".ogv",
+      ".pdf",
+      ".png",
+      ".ppt",
+      ".pptx",
+      ".wav",
+      ".weba",
+      ".webm",
+      ".xls",
+      ".xlsx",
+    ].includes(extension)
+  );
+}
+
+
+function isOfficeXmlFallbackAsset(asset: ViewerAsset): boolean {
+  return [".docx", ".pptx", ".xlsx"].includes(fileExtension(asset.original_filename));
+}
+
+
+function shouldGeneratePreview(preview: AssetPreview, asset: ViewerAsset): boolean {
+  if (preview.preview_status === "PENDING") {
+    return true;
+  }
+  if (
+    preview.preview_status === "FAILED" &&
+    isOfficeXmlFallbackAsset(asset) &&
+    preview.conversion_error?.trim() ===
+      "LibreOffice was not found. Install LibreOffice to generate Office document previews."
+  ) {
+    return true;
+  }
+  return preview.preview_status === "UNSUPPORTED" && isKnownPreviewableAsset(asset);
 }
 
 
@@ -186,7 +268,7 @@ export function ContentViewer({
   const [isMandatoryChange, setIsMandatoryChange] = useState(Boolean(defaultCreatePayload.is_mandatory_change));
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentVideoTime, setCurrentVideoTime] = useState(0);
+  const [currentMediaTime, setCurrentMediaTime] = useState(0);
   const [inlinePanelPosition, setInlinePanelPosition] = useState<{ left: number; top: number } | null>(null);
   const previewStageRef = useRef<HTMLDivElement | null>(null);
   const resolvedContentVersionId = contentVersion?.id ?? contentVersionId ?? null;
@@ -231,7 +313,12 @@ export function ContentViewer({
       return;
     }
 
-    if (nextPreview.preview_type === "IMAGE" || nextPreview.preview_type === "VIDEO") {
+    if (
+      nextPreview.preview_type === "IMAGE" ||
+      nextPreview.preview_type === "VIDEO" ||
+      nextPreview.preview_type === "AUDIO" ||
+      nextPreview.preview_type === "HTML"
+    ) {
       const blob = await getAssetViewerSourceBlob(asset.id);
       setSourceUrl(window.URL.createObjectURL(blob));
     }
@@ -253,7 +340,7 @@ export function ContentViewer({
         ? await generateAssetPreview(asset.id)
         : await getAssetPreviewMeta(asset.id);
 
-      if (nextPreview.preview_status === "PENDING") {
+      if (!forceGenerate && shouldGeneratePreview(nextPreview, asset)) {
         nextPreview = await generateAssetPreview(asset.id);
       }
 
@@ -311,8 +398,8 @@ export function ContentViewer({
     setFormError(null);
   }
 
-  function beginVideoTimestamp() {
-    const timestamp = currentVideoTime || 0;
+  function beginMediaTimestamp() {
+    const timestamp = currentMediaTime || 0;
     handleCreateAnchor({
       anchor_type: "VIDEO_TIMESTAMP",
       timestamp_seconds: timestamp,
@@ -411,6 +498,8 @@ export function ContentViewer({
   const isPdfReady = preview?.preview_type === "PDF" && pdfData;
   const isImageReady = preview?.preview_type === "IMAGE" && sourceUrl;
   const isVideoReady = preview?.preview_type === "VIDEO" && sourceUrl;
+  const isAudioReady = preview?.preview_type === "AUDIO" && sourceUrl;
+  const isHtmlReady = preview?.preview_type === "HTML" && sourceUrl;
   const isInlineComposer = annotationComposerMode === "inline";
   const showLegacyComposer = !isInlineComposer && pendingAnchor;
   const showInlineFloatingComposer = isInlineComposer && pendingAnchor;
@@ -623,8 +712,8 @@ export function ContentViewer({
                 </button>
               </>
             )}
-            {preview?.preview_type === "VIDEO" && (
-              <button type="button" onClick={beginVideoTimestamp} className={secondaryButtonClass}>
+            {(preview?.preview_type === "VIDEO" || preview?.preview_type === "AUDIO") && (
+              <button type="button" onClick={beginMediaTimestamp} className={secondaryButtonClass}>
                 Timestamp
               </button>
             )}
@@ -782,8 +871,19 @@ export function ContentViewer({
             selectedAnnotationId={selectedAnnotationId}
             durationSeconds={preview?.duration_seconds}
             onSelectAnnotation={onSelectAnnotation}
-            onTimeChange={setCurrentVideoTime}
+            onTimeChange={setCurrentMediaTime}
           />
+        ) : isAudioReady ? (
+          <AudioViewer
+            sourceUrl={sourceUrl}
+            annotations={viewerAnnotations}
+            selectedAnnotationId={selectedAnnotationId}
+            durationSeconds={preview?.duration_seconds}
+            onSelectAnnotation={onSelectAnnotation}
+            onTimeChange={setCurrentMediaTime}
+          />
+        ) : isHtmlReady ? (
+          <HtmlViewer sourceUrl={sourceUrl} />
         ) : (
           <PreviewFallback
             asset={asset}

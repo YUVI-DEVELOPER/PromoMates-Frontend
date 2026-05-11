@@ -37,7 +37,7 @@ export type AssetUploadMetadata = {
 };
 
 
-export type AssetPreviewType = "PDF" | "IMAGE" | "VIDEO" | "HTML" | "UNSUPPORTED";
+export type AssetPreviewType = "PDF" | "IMAGE" | "VIDEO" | "AUDIO" | "HTML" | "UNSUPPORTED";
 
 
 export type AssetPreviewStatus = "PENDING" | "READY" | "FAILED" | "UNSUPPORTED";

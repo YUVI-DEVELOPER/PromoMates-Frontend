@@ -7,6 +7,7 @@ import {
 import type { ContentRequestReferenceMaterial } from "../../types/materialRequest";
 import { getApiErrorMessage } from "../../utils/apiError";
 import { formatFileSize } from "../../utils/fileSize";
+import { AudioViewer } from "../viewer/AudioViewer";
 import { ImageViewer } from "../viewer/ImageViewer";
 import { PdfViewer } from "../viewer/PdfViewer";
 import { VideoViewer } from "../viewer/VideoViewer";
@@ -19,29 +20,55 @@ type ReferenceMaterialViewerProps = {
 };
 
 
-type ReferencePreviewType = "PDF" | "IMAGE" | "VIDEO" | "UNSUPPORTED";
+type ReferencePreviewType = "PDF" | "IMAGE" | "VIDEO" | "AUDIO" | "UNSUPPORTED";
 
 
 const secondaryButtonClass =
   "inline-flex h-9 items-center justify-center rounded-md border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-100 disabled:cursor-not-allowed disabled:opacity-60";
 
 
+function getFileExtension(filename: string): string {
+  const index = filename.lastIndexOf(".");
+  return index >= 0 ? filename.slice(index).toLowerCase() : "";
+}
+
+
 function getPreviewType(material: ContentRequestReferenceMaterial | null): ReferencePreviewType {
   if (!material) {
     return "UNSUPPORTED";
   }
+  const extension = getFileExtension(material.original_filename);
   if (
     material.mime_type === "application/pdf" ||
+    material.mime_type === "application/msword" ||
+    material.mime_type === "application/vnd.ms-excel" ||
+    material.mime_type === "application/vnd.ms-powerpoint" ||
     material.mime_type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-    material.mime_type === "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    material.mime_type === "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
+    material.mime_type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+    [".doc", ".docx", ".pdf", ".ppt", ".pptx", ".xls", ".xlsx"].includes(extension)
   ) {
     return "PDF";
   }
   if (material.mime_type === "image/jpeg" || material.mime_type === "image/png") {
     return "IMAGE";
   }
-  if (material.mime_type === "video/mp4") {
+  if (["video/mp4", "video/ogg", "video/quicktime", "video/webm"].includes(material.mime_type)) {
     return "VIDEO";
+  }
+  if (
+    [
+      "audio/aac",
+      "audio/mpeg",
+      "audio/mp4",
+      "audio/ogg",
+      "audio/wav",
+      "audio/webm",
+      "audio/x-m4a",
+      "audio/x-wav",
+    ].includes(material.mime_type)
+  ) {
+    return "AUDIO";
   }
   return "UNSUPPORTED";
 }
@@ -171,6 +198,11 @@ export function ReferenceMaterialViewer({ requestId, material, onClose }: Refere
             />
           ) : previewType === "VIDEO" && sourceUrl ? (
             <VideoViewer
+              sourceUrl={sourceUrl}
+              annotations={[]}
+            />
+          ) : previewType === "AUDIO" && sourceUrl ? (
+            <AudioViewer
               sourceUrl={sourceUrl}
               annotations={[]}
             />
